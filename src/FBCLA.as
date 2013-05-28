@@ -6,7 +6,7 @@ package
 	
 	import flash.display.Sprite;
 	import flash.events.Event;
-	[SWF (backgroundColor="0xEEFFFF", width="1024", height="768", frameRate="60")]	
+	[SWF (backgroundColor="0xEEFFFF", width="1024", height="568", frameRate="60")]	
 	public class FBCLA extends Sprite
 	{
 		private var _region:Region;

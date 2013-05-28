@@ -1,6 +1,7 @@
 package encoder
 {
 	import flash.display.Sprite;
+	import flash.net.SharedObject;
 
 	public class MouseEncoder extends Encoder
 	{
@@ -8,17 +9,37 @@ package encoder
 		
 		public function MouseEncoder(subEncoders:Array=null)
 		{
+			_SOcode ="mouseSO";
 			super(subEncoders);
 			_max = 1024;
 			_min = 0;
 		}
 		
 		override public function encode():void {
-			if(!_sprite) return;
-			var mouseX:Number = encoding(_sprite.mouseX);
+			var mouseX:Number;
+			var x:Number;
+			if(_recordLoaded) {
+				if(!_sprite) return;
+				x = _sprite.mouseX;
+			} else {
+				if(_recordedValues && _loadedValues.length > 0) {
+					x = _loadedValues.shift();
+					//trace("popped "+x+" ["+_loadedValues.length+"]");
+				} else {
+					_recordLoaded = true;
+					trace("loaded mouse log ["+_recordedValues.length+"]");
+					return;
+				}
+			}
+			mouseX = encoding(x);
 			if(mouseX == _lastEncoding) {
 				_changed = false;
 				return;
+			}
+			_recordedValues.push(x);
+			if(_recordedValues.length % 100 == 0) {
+				trace("saving mouse log ["+_recordedValues.length+"]");
+				_recording.setProperty("mouseValues",_recordedValues);
 			}
 			var bitMask:String = "";
 			for(var i:uint = 0; i < _width; i++) {

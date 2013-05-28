@@ -1,6 +1,7 @@
 package encoder
 {
 	import flash.display.Graphics;
+	import flash.net.SharedObject;
 
 	public class Encoder
 	{
@@ -13,12 +14,24 @@ package encoder
 		protected var _min:Number = 0;	
 		protected var _lastEncoding:uint;
 		protected var _changed:Boolean = true;
+		protected var _SOcode:String = "encoderSO";
+		protected var _recording:SharedObject;
+		protected var _recordedValues:Array;
+		protected var _loadedValues:Array;
+		protected var _recordLoaded:Boolean = false;
 		
 		public function Encoder(subEncoders:Array = null)
 		{
 			_bits = new Array(_width);
 			_values = new Array(_width);
 			_subEncoders = subEncoders;
+			_recording = SharedObject.getLocal(_SOcode);
+			_loadedValues = _recording.data.mouseValues;
+			_recordedValues = new Array();
+			if(_loadedValues == null) _recordLoaded = true;
+			else {
+				trace("loading recording "+_loadedValues.length+" items");
+			}
 		}
 		
 		public function encode():void {
@@ -88,6 +101,16 @@ package encoder
 		public function set changed(value:Boolean):void
 		{
 			_changed = value;
+		}
+
+		public function get recordLoaded():Boolean
+		{
+			return _recordLoaded;
+		}
+
+		public function set recordLoaded(value:Boolean):void
+		{
+			_recordLoaded = value;
 		}
 
 

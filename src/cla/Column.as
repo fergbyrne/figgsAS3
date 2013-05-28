@@ -11,6 +11,10 @@ package cla
 		private var _inputs:Array;
 		private var _index:uint;
 		private var _activeInputs:uint;
+		private var _beenActive:uint = 0;
+		private var _isActivating:Boolean = false;
+		private var _previousActivity:Boolean = false;
+		private var _visited:Boolean = false;
 		
 		public function Column(region:Region, index:uint)
 		{
@@ -68,6 +72,11 @@ package cla
 			for(var i:uint = 0; i < _cells.length; i++) {
 				_cells[i].draw(graphics, xy);
 			}
+			for(i = _beenActive; i > 0; i--) {
+				graphics.beginFill(0x99FFFF, 0.8);
+				graphics.drawCircle(x + i * 3, y - i, i + 3);
+				graphics.endFill();
+			}
 		}
 
 		public function drawInputs(graphics:Graphics, xy:Array):void
@@ -84,14 +93,14 @@ package cla
 				if(bits[index]) {
 					graphics.beginFill(0xAA0000,permanence);
 				} else {
-					graphics.beginFill(0xffffff,permanence);
+					graphics.beginFill(0xccccff,permanence);
 				}
 				if(permanence > Region.permanenceThreshold) {
-					graphics.lineStyle(2.0,0xCCFFCC, permanence);
+					graphics.lineStyle(1.0,0xCCFFCC, 1.0);
 				} else {
-					graphics.lineStyle(2.0,0xCCCCFF, permanence);
+					graphics.lineStyle(1.0,0xCCCCFF, permanence);
 				}			
-				graphics.drawRect(x, y, 2, 2);
+				graphics.drawRect(x, y - permanence * 5, 2, 2);
 				graphics.endFill();
 			}			
 		}
@@ -115,10 +124,18 @@ package cla
 				var connection:Array = _inputs[i];
 				var index:uint = connection[0];
 				var permanence:Number = connection[1];
-				if(bits[index]) {
-					_inputs[i][1] += Region.incSensorPermanence;
+				if(Region.learnOnes) {
+					if(bits[index]) {
+						_inputs[i][1] += Region.incSensorPermanence;
+					} else if(permanence > Region.permanenceThreshold) {
+						_inputs[i][1] -= Region.decSensorPermanence;					
+					}					
 				} else {
-					_inputs[i][1] -= Region.decSensorPermanence;					
+					if(bits[index]) {
+						_inputs[i][1] += Region.incSensorPermanence;
+					} else {
+						_inputs[i][1] -= Region.decSensorPermanence;					
+					}
 				}
 				if(_inputs[i][1] > 1) _inputs[i][1] = 1;
 				if(_inputs[i][1] < 0) _inputs[i][1] = 0;
@@ -126,5 +143,38 @@ package cla
 				}
 			}			
 		}
+
+		public function get beenActive():uint
+		{
+			return _beenActive;
+		}
+
+		public function set beenActive(value:uint):void
+		{
+			_beenActive = value;
+		}
+
+		public function get isActivating():Boolean
+		{
+			return _isActivating;
+		}
+
+		public function set isActivating(value:Boolean):void
+		{
+			if(value != _isActivating) _previousActivity = _isActivating;
+			_isActivating = value;
+		}
+
+		public function get visited():Boolean
+		{
+			return _visited;
+		}
+
+		public function set visited(value:Boolean):void
+		{
+			_visited = value;
+		}
+
+
 	}
 }

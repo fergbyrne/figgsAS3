@@ -22,10 +22,11 @@ package cla
 		public static var stage:Sprite;
 		public static var scale:Number = 1.0;
 		public static var sparcity:Number = 2.0; // percent of columns which will be chosen as active
-		public static var incSensorPermanence:Number = 0.01;
+		public static var incSensorPermanence:Number = 0.005;
 		public static var decSensorPermanence:Number = 0.002;
-		public static var inhibitionDistance:Number = 10;
-		public static var learnConnections:Boolean = false;
+		public static var inhibitionDistance:Number = 5;
+		public static var learnConnections:Boolean = true;
+		public static var learnOnes:Boolean = true;
 
 		public function Region(n:uint = 0)
 		{
@@ -54,6 +55,12 @@ package cla
 			for(var i:uint = 0; i < _columns.length; i++) {
 				_columns[i].connectEncoder();
 			}
+			while(!_encoder.recordLoaded) {
+				_encoder.encode();
+				if(_encoder.changed) {
+					spatialPooler();
+				}
+			}
 		}
 
 		public function spatialPooler():void
@@ -68,36 +75,52 @@ package cla
 				//trace("active ["+col+"] at ("+xy[0]+","+xy[1]+")");
 				_activeColumns[j] = -1;
 			}
-			for(var i:uint = 0; i < _columns.length; i++) {
+			for(var n:uint = 0; n < _columns.length; n++) {
+				var i:uint = Math.random() * _columns.length;
 				var thisColumn:Column = _columns[i];
-				thisColumn.readInputs();
-				var thisXY:Array = columnGridPosition(i);
-				var thatXY:Array;
-				activation += thisColumn.activeInputs;
-				for(j = 0; j < _activeColumns.length; j++) {
-					if(_activeColumns[j] == -1) { // empty position
-						_activeColumns[j] = i;
-						j = _activeColumns.length;
-					} else {
-						var thatColumn:Column = _columns[_activeColumns[j]];
-						//trace("checking column ["+i+"] ("+thisColumn.activeInputs+") vs ["+_activeColumns[j]+"] ("+thatColumn.activeInputs+")"); 
-						if(thisColumn.activeInputs >= thatColumn.activeInputs) {
-							thatXY = columnGridPosition(_activeColumns[j]);
-							if(Math.abs(thisXY[0] - thatXY[0] + thisXY[1] - thatXY[1]) > Region.inhibitionDistance) {
-								// shove the lower-activation columns down the list
-								for(var k:uint = _activeColumns.length - 1; k > j; k--) {
-									_activeColumns[k] = _activeColumns[k - 1];
-								}
-							}
-							// insert this column in the list
+				if(thisColumn.visited) {
+				} else {
+					thisColumn.visited = true;
+					thisColumn.readInputs();
+					var thisXY:Array = columnGridPosition(i);
+					var thatXY:Array;
+					thisColumn.isActivating = false;
+					activation += thisColumn.activeInputs;
+					
+					for(j = 0; j < _activeColumns.length; j++) {
+						if(_activeColumns[j] == -1) { // empty position
 							_activeColumns[j] = i;
-							if(learnConnections) thisColumn.strengthenInputs();
-							// end the search
 							j = _activeColumns.length;
+						} else {
+							var thatColumn:Column = _columns[_activeColumns[j]];
+							//trace("checking column ["+i+"] ("+thisColumn.activeInputs+") vs ["+_activeColumns[j]+"] ("+thatColumn.activeInputs+")"); 
+							if(thisColumn.activeInputs > thatColumn.activeInputs) {
+								thatXY = columnGridPosition(_activeColumns[j]);
+								if(Math.abs(thisXY[0] - thatXY[0] + thisXY[1] - thatXY[1]) > Region.inhibitionDistance) {
+									// shove the lower-activation columns down the list
+									for(var k:uint = _activeColumns.length - 1; k > j; k--) {
+										_activeColumns[k] = _activeColumns[k - 1];
+									}
+								}
+								// insert this column in the list
+								_activeColumns[j] = i;
+								if(learnConnections) thisColumn.strengthenInputs();
+								// end the search
+								j = _activeColumns.length;
+							}
 						}
 					}
 				}
-			
+			}
+			for(j = 0; j < _activeColumns.length; j++) {
+				var column:Column = _columns[_activeColumns[j]];
+				column.isActivating = true;
+			}
+			for(n = 0; n < _columns.length; n++) {
+				column = _columns[n];
+				column.visited = false;
+				if(column.isActivating) column.beenActive++;
+				else column.beenActive = 0;
 			}
 			topCol = _columns[_activeColumns[0]];
 			lastCol = _columns[_activeColumns[_activeColumns.length - 1]];
