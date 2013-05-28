@@ -10,6 +10,20 @@ The current iteration uses the mouse X position as the input data stream, and us
 
 All the settings can be adjusted in cla.Region
 
+Current Behaviour:
+
+- User provides the data by moving the mouse around
+- Easy to understand feedback showing input bit vector (top of screen)
+- Active columns (top 2% max) displayed in response, colour of "base" circles deepens for more active
+- Smoothly varying SDR already showing up, activation pattern is quite stable
+
+TODO
+
+- Get more columns active 
+- Add learning of "good connections" for spatial pooler
+- All the rest of the CLA!!
+
+
 
 
 
