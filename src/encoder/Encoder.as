@@ -5,6 +5,7 @@ package encoder
 	public class Encoder
 	{
 		protected var _bits:Array;
+		protected var _values:Array;
 		protected var _width:uint = 128;
 		protected var _bucketWidth:uint = 28;
 		protected var _subEncoders:Array;
@@ -12,6 +13,7 @@ package encoder
 		public function Encoder(subEncoders:Array = null)
 		{
 			_bits = new Array(_width);
+			_values = new Array(_width);
 			_subEncoders = subEncoders;
 		}
 		
@@ -24,6 +26,7 @@ package encoder
 						sub.encode();
 						for(var k:uint = 0; k < sub.bits.length; k++) {
 							_bits[i] = sub.bits[k];
+							_values[i] = sub.values[k];
 							i++;
 						}
 					}
@@ -62,6 +65,16 @@ package encoder
 		public function set width(value:uint):void
 		{
 			_width = value;
+		}
+
+		public function get values():Array
+		{
+			return _values;
+		}
+
+		public function set values(value:Array):void
+		{
+			_values = value;
 		}
 
 
