@@ -56,11 +56,19 @@ package cla
 		{
 			var topCol:Column, lastCol:Column;
 			var activation:uint = 0;
+			var a:uint = 0;
+			// clear the array of top active columns
+			for(var j:uint = 0; j < _activeColumns.length; j++) {
+				var col:int = _activeColumns[j];
+				var xy:Array = columnGridPosition(col);
+				//trace("active ["+col+"] at ("+xy[0]+","+xy[1]+")");
+				_activeColumns[j] = -1;
+			}
 			for(var i:uint = 0; i < _columns.length; i++) {
 				var thisColumn:Column = _columns[i];
 				thisColumn.readInputs();
 				activation += thisColumn.activeInputs;
-				for(var j:uint = 0; j < _activeColumns.length; j++) {
+				for(j = 0; j < _activeColumns.length; j++) {
 					if(_activeColumns[j] == -1) {
 						_activeColumns[j] = i;
 						j = _activeColumns.length;
@@ -68,7 +76,7 @@ package cla
 						var thatColumn:Column = _columns[_activeColumns[j]];
 						//trace("checking column ["+i+"] ("+thisColumn.activeInputs+") vs ["+_activeColumns[j]+"] ("+thatColumn.activeInputs+")"); 
 						if(thisColumn.activeInputs > thatColumn.activeInputs) {
-							for(var k:uint = j + 1; k < _activeColumns.length; k++) {
+							for(var k:uint = _activeColumns.length - 1; k > j; k--) {
 								_activeColumns[k] = _activeColumns[k - 1];
 							}
 							_activeColumns[j] = i;
