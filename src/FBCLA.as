@@ -36,10 +36,12 @@ package
 			_frames += 1;
 			if(_region && !_region.drawing) {
 				_encoder.encode();
-				_region.spatialPooler();
-				graphics.clear();
-				_region.draw();
-				_done += 1;
+				if(_encoder.changed) {
+					_region.spatialPooler();
+					graphics.clear();
+					_region.draw();
+					_done += 1;					
+				}
 			}
 			if(_frames == 25) {
 				trace("FPS = "+_done);

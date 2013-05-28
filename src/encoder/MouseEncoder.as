@@ -5,17 +5,21 @@ package encoder
 	public class MouseEncoder extends Encoder
 	{
 		private var _sprite:Sprite;
-		private var _max:Number = 1024;
-		private var _min:Number = 0;		
 		
 		public function MouseEncoder(subEncoders:Array=null)
 		{
 			super(subEncoders);
+			_max = 1024;
+			_min = 0;
 		}
 		
 		override public function encode():void {
 			if(!_sprite) return;
 			var mouseX:Number = encoding(_sprite.mouseX);
+			if(mouseX == _lastEncoding) {
+				_changed = false;
+				return;
+			}
 			var bitMask:String = "";
 			for(var i:uint = 0; i < _width; i++) {
 				//trace("bit "+i+" vs "+mouseX);
@@ -28,6 +32,8 @@ package encoder
 				}
 				bitMask = "" + bitMask + ((_bits[i]) ? "1" : "0");
 			}
+			_lastEncoding = mouseX;
+			_changed = true;
 			//trace(bitMask+"\t"+mouseX);
 		}
 

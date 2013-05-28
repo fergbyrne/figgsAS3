@@ -63,12 +63,39 @@ package cla
 			graphics.beginFill(0xAA0000,_activeInputs * scale / 20);
 			graphics.drawCircle(x, y, _activeInputs * scale + 6);
 			graphics.endFill();
+			drawInputs(graphics, xy);
 			//trace("draw column["+_index+"] at pos["+pos[0]+","+pos[1]+"] ["+xy[0]+","+xy[1]+"] scale("+Region.scale+")");
 			for(var i:uint = 0; i < _cells.length; i++) {
 				_cells[i].draw(graphics, xy);
 			}
 		}
 
+		public function drawInputs(graphics:Graphics, xy:Array):void
+		{
+			var e:Encoder = _region.encoder;
+			var bits:Array = e.bits;
+			for(var i:uint = 0; i < _inputs.length; i++) {
+				var x:Number = xy[0] + 5 + 2 * i;
+				var y:Number = xy[1] - 5;
+
+				var connection:Array = _inputs[i];
+				var index:uint = connection[0];
+				var permanence:Number = connection[1];
+				if(bits[index]) {
+					graphics.beginFill(0xAA0000,permanence);
+				} else {
+					graphics.beginFill(0xffffff,permanence);
+				}
+				if(permanence > Region.permanenceThreshold) {
+					graphics.lineStyle(2.0,0xCCFFCC, permanence);
+				} else {
+					graphics.lineStyle(2.0,0xCCCCFF, permanence);
+				}			
+				graphics.drawRect(x, y, 2, 2);
+				graphics.endFill();
+			}			
+		}
+		
 		public function get activeInputs():uint
 		{
 			return _activeInputs;
@@ -93,6 +120,8 @@ package cla
 				} else {
 					_inputs[i][1] -= Region.decSensorPermanence;					
 				}
+				if(_inputs[i][1] > 1) _inputs[i][1] = 1;
+				if(_inputs[i][1] < 0) _inputs[i][1] = 0;
 				if(permanence > Region.permanenceThreshold) {
 				}
 			}			

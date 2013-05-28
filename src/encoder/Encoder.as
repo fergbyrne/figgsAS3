@@ -9,6 +9,10 @@ package encoder
 		protected var _width:uint = 128;
 		protected var _bucketWidth:uint = 28;
 		protected var _subEncoders:Array;
+		protected var _max:Number = 1024;
+		protected var _min:Number = 0;	
+		protected var _lastEncoding:uint;
+		protected var _changed:Boolean = true;
 		
 		public function Encoder(subEncoders:Array = null)
 		{
@@ -75,6 +79,15 @@ package encoder
 		public function set values(value:Array):void
 		{
 			_values = value;
+		}
+		public function get changed():Boolean
+		{
+			return _changed;
+		}
+		
+		public function set changed(value:Boolean):void
+		{
+			_changed = value;
 		}
 
 

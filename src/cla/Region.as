@@ -22,8 +22,10 @@ package cla
 		public static var stage:Sprite;
 		public static var scale:Number = 1.0;
 		public static var sparcity:Number = 2.0; // percent of columns which will be chosen as active
-		public static var incSensorPermanence:Number = 0.1;
-		public static var decSensorPermanence:Number = 0.05;
+		public static var incSensorPermanence:Number = 0.01;
+		public static var decSensorPermanence:Number = 0.002;
+		public static var inhibitionDistance:Number = 10;
+		public static var learnConnections:Boolean = false;
 
 		public function Region(n:uint = 0)
 		{
@@ -69,6 +71,8 @@ package cla
 			for(var i:uint = 0; i < _columns.length; i++) {
 				var thisColumn:Column = _columns[i];
 				thisColumn.readInputs();
+				var thisXY:Array = columnGridPosition(i);
+				var thatXY:Array;
 				activation += thisColumn.activeInputs;
 				for(j = 0; j < _activeColumns.length; j++) {
 					if(_activeColumns[j] == -1) { // empty position
@@ -77,14 +81,17 @@ package cla
 					} else {
 						var thatColumn:Column = _columns[_activeColumns[j]];
 						//trace("checking column ["+i+"] ("+thisColumn.activeInputs+") vs ["+_activeColumns[j]+"] ("+thatColumn.activeInputs+")"); 
-						if(thisColumn.activeInputs > thatColumn.activeInputs) {
-							// shove the lower-activation columns down the list
-							for(var k:uint = _activeColumns.length - 1; k > j; k--) {
-								_activeColumns[k] = _activeColumns[k - 1];
+						if(thisColumn.activeInputs >= thatColumn.activeInputs) {
+							thatXY = columnGridPosition(_activeColumns[j]);
+							if(Math.abs(thisXY[0] - thatXY[0] + thisXY[1] - thatXY[1]) > Region.inhibitionDistance) {
+								// shove the lower-activation columns down the list
+								for(var k:uint = _activeColumns.length - 1; k > j; k--) {
+									_activeColumns[k] = _activeColumns[k - 1];
+								}
 							}
 							// insert this column in the list
 							_activeColumns[j] = i;
-							thisColumn.strengthenInputs();
+							if(learnConnections) thisColumn.strengthenInputs();
 							// end the search
 							j = _activeColumns.length;
 						}
