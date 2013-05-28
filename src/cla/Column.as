@@ -79,5 +79,23 @@ package cla
 			_activeInputs = value;
 		}
 
+		public function strengthenInputs():void
+		{
+			var e:Encoder = _region.encoder;
+			var bits:Array = e.bits;
+			_activeInputs = 0;
+			for(var i:uint = 0; i < _inputs.length; i++) {
+				var connection:Array = _inputs[i];
+				var index:uint = connection[0];
+				var permanence:Number = connection[1];
+				if(bits[index]) {
+					_inputs[i][1] += Region.incSensorPermanence;
+				} else {
+					_inputs[i][1] -= Region.decSensorPermanence;					
+				}
+				if(permanence > Region.permanenceThreshold) {
+				}
+			}			
+		}
 	}
 }

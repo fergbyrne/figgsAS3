@@ -22,6 +22,8 @@ package cla
 		public static var stage:Sprite;
 		public static var scale:Number = 1.0;
 		public static var sparcity:Number = 2.0; // percent of columns which will be chosen as active
+		public static var incSensorPermanence:Number = 0.1;
+		public static var decSensorPermanence:Number = 0.05;
 
 		public function Region(n:uint = 0)
 		{
@@ -69,17 +71,21 @@ package cla
 				thisColumn.readInputs();
 				activation += thisColumn.activeInputs;
 				for(j = 0; j < _activeColumns.length; j++) {
-					if(_activeColumns[j] == -1) {
+					if(_activeColumns[j] == -1) { // empty position
 						_activeColumns[j] = i;
 						j = _activeColumns.length;
 					} else {
 						var thatColumn:Column = _columns[_activeColumns[j]];
 						//trace("checking column ["+i+"] ("+thisColumn.activeInputs+") vs ["+_activeColumns[j]+"] ("+thatColumn.activeInputs+")"); 
 						if(thisColumn.activeInputs > thatColumn.activeInputs) {
+							// shove the lower-activation columns down the list
 							for(var k:uint = _activeColumns.length - 1; k > j; k--) {
 								_activeColumns[k] = _activeColumns[k - 1];
 							}
+							// insert this column in the list
 							_activeColumns[j] = i;
+							thisColumn.strengthenInputs();
+							// end the search
 							j = _activeColumns.length;
 						}
 					}
