@@ -13,7 +13,7 @@ package cla
 		private var _drawing:Boolean = false;
 		private var _activeColumns:Array;	// sorted list of top columns by activity
 		
-		public static var regionWidth:uint = 32;
+		public static var regionWidth:uint = 16;
 		public static var columnCells:uint = 16;
 		public static var cellDendrites:uint = 16;
 		public static var dendriteSize:uint = 16;
